@@ -1,0 +1,3 @@
+using InventorySystem.Domain.Entities; using InventorySystem.Infrastructure.Persistence; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore;
+namespace InventorySystem.API.Controllers;
+[ApiController][Route("api/warehouses")] public class WarehousesController(AppDbContext db):ControllerBase { [HttpGet] public async Task<IActionResult> Get()=>Ok(await db.Warehouses.Where(x=>!x.IsDeleted).ToListAsync()); [HttpPost][Authorize(Roles="Admin,Manager")] public async Task<IActionResult> Post(Warehouse w){db.Warehouses.Add(w);await db.SaveChangesAsync();return Ok(w);} }

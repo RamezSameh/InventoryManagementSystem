@@ -1,0 +1,3 @@
+using FluentValidation; using System.Text.Json;
+namespace InventorySystem.API.Middleware;
+public class ExceptionMiddleware(RequestDelegate next,ILogger<ExceptionMiddleware> logger){ public async Task InvokeAsync(HttpContext ctx){ try{await next(ctx);} catch(ValidationException ex){ctx.Response.StatusCode=400;ctx.Response.ContentType="application/json";await ctx.Response.WriteAsync(JsonSerializer.Serialize(new{errors=ex.Errors.Select(e=>e.ErrorMessage)}));} catch(Exception ex){logger.LogError(ex,"Unhandled exception");ctx.Response.StatusCode=500;await ctx.Response.WriteAsJsonAsync(new{error="An unexpected error occurred."});} } }

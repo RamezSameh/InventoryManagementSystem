@@ -1,0 +1,3 @@
+using MediatR; using InventorySystem.Application.Features.Products.Commands; using InventorySystem.Application.Features.Products.Queries; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Mvc;
+namespace InventorySystem.API.Controllers;
+[ApiController][Route("api/products")] public class ProductsController(IMediator mediator):ControllerBase { [HttpPost][Authorize(Roles="Admin,Manager")] public async Task<IActionResult> Create(CreateProductCommand c)=>Ok(new{id=await mediator.Send(c)}); [HttpGet] public async Task<IActionResult> Get([FromQuery]GetProductsQuery q)=>Ok(await mediator.Send(q)); }

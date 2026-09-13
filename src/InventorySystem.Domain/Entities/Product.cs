@@ -1,0 +1,3 @@
+using InventorySystem.Domain.Common;
+namespace InventorySystem.Domain.Entities;
+public class Product : BaseEntity { public string Name { get; set; } = string.Empty; public string SKU { get; set; } = string.Empty; public string? Barcode { get; set; } public string? Description { get; set; } public decimal PurchasePrice { get; set; } public decimal SellingPrice { get; set; } public int MinimumStock { get; set; } public int CategoryId { get; set; } public Category Category { get; set; } = null!; public ICollection<StockItem> StockItems { get; set; } = new List<StockItem>(); public ICollection<StockMovement> StockMovements { get; set; } = new List<StockMovement>(); }

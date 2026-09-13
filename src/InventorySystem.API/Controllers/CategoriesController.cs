@@ -1,0 +1,3 @@
+using InventorySystem.Domain.Entities; using InventorySystem.Infrastructure.Persistence; using Microsoft.AspNetCore.Authorization; using Microsoft.AspNetCore.Mvc; using Microsoft.EntityFrameworkCore;
+namespace InventorySystem.API.Controllers;
+[ApiController][Route("api/categories")] public class CategoriesController(AppDbContext db):ControllerBase { [HttpGet] public async Task<IActionResult> Get()=>Ok(await db.Categories.Where(x=>!x.IsDeleted).ToListAsync()); [HttpPost][Authorize(Roles="Admin,Manager")] public async Task<IActionResult> Post(Category c){db.Categories.Add(c);await db.SaveChangesAsync();return Ok(c);} }
