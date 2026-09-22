@@ -1,13 +1,18 @@
 using InventorySystem.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace InventorySystem.Infrastructure.Persistence;
 
 public static class DbSeeder
 {
-    public static async Task SeedAsync(IServiceProvider serviceProvider)
+    /// <summary>
+    /// Ensures roles and the default admin account exist. Runs in EVERY environment
+    /// (Development and Production) so the default admin can always log in.
+    /// </summary>
+    public static async Task EnsureAdminAsync(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -22,6 +27,13 @@ public static class DbSeeder
             }
         }
 
+        var config = scope.ServiceProvider.GetService<IConfiguration>();
+        var adminPassword = config?.GetValue<string>("Seed:AdminPassword");
+        if (string.IsNullOrWhiteSpace(adminPassword))
+        {
+            adminPassword = "Admin@123";
+        }
+
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
         var admin = await userManager.FindByEmailAsync("admin@inventory.com");
         if (admin is null)
@@ -33,14 +45,43 @@ public static class DbSeeder
                 FullName = "System Administrator",
                 EmailConfirmed = true
             };
-            await userManager.CreateAsync(admin, "Admin@123");
-            await userManager.AddToRoleAsync(admin, "Admin");
+            var createResult = await userManager.CreateAsync(admin, adminPassword);
+            if (!createResult.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    "Failed to seed default admin user: " +
+                    string.Join("; ", createResult.Errors.Select(e => e.Description)));
+            }
+            var roleResult = await userManager.AddToRoleAsync(admin, "Admin");
+            if (!roleResult.Succeeded)
+            {
+                throw new InvalidOperationException(
+                    "Failed to assign Admin role to default admin user: " +
+                    string.Join("; ", roleResult.Errors.Select(e => e.Description)));
+            }
         }
+    }
+
+    /// <summary>
+    /// Seeds demo data (categories, products, stock, movements). Development only.
+    /// </summary>
+    public static async Task SeedDemoDataAsync(IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await db.Database.EnsureCreatedAsync();
 
         await SeedReferenceDataAsync(db);
         await SeedProductsAsync(db);
         await SeedStockAsync(db);
         await SeedMovementsAsync(db);
+    }
+
+    [Obsolete("Use EnsureAdminAsync + SeedDemoDataAsync instead.")]
+    public static async Task SeedAsync(IServiceProvider serviceProvider)
+    {
+        await EnsureAdminAsync(serviceProvider);
+        await SeedDemoDataAsync(serviceProvider);
     }
 
     private static async Task SeedReferenceDataAsync(AppDbContext db)

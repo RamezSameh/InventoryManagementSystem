@@ -47,10 +47,12 @@ builder.Services.AddCors(o => o.AddPolicy("AppCors", p => p
 
 var app = builder.Build();
 
-// Seed data is for local development only — never in production.
+// The default admin account is seeded in every environment so login always works.
+// Demo data below is for local development only — never in production.
+await DbSeeder.EnsureAdminAsync(app.Services);
 if (app.Environment.IsDevelopment())
 {
-    await DbSeeder.SeedAsync(app.Services);
+    await DbSeeder.SeedDemoDataAsync(app.Services);
 }
 
 app.UseSwagger();
