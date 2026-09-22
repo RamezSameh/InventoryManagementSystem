@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "E:\\Programming\\Projects\\New\\Full Stack\\Inventory Managment System\\InventorySystem\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{5C185D96-E7B2-4EA3-8DC8-82951692E9CA}|src\\InventorySystem.API\\InventorySystem.API.csproj|e:\\programming\\projects\\new\\full stack\\inventory managment system\\inventorysystem\\src\\inventorysystem.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5C185D96-E7B2-4EA3-8DC8-82951692E9CA}|src\\InventorySystem.API\\InventorySystem.API.csproj|solutionrelative:src\\inventorysystem.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{1E8E7306-4883-43EB-8408-2F350C3220AA}|src\\InventorySystem.Infrastructure\\InventorySystem.Infrastructure.csproj|e:\\programming\\projects\\new\\full stack\\inventory managment system\\inventorysystem\\src\\inventorysystem.infrastructure\\persistence\\dbseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1E8E7306-4883-43EB-8408-2F350C3220AA}|src\\InventorySystem.Infrastructure\\InventorySystem.Infrastructure.csproj|solutionrelative:src\\inventorysystem.infrastructure\\persistence\\dbseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5C185D96-E7B2-4EA3-8DC8-82951692E9CA}|src\\InventorySystem.API\\InventorySystem.API.csproj|e:\\programming\\projects\\new\\full stack\\inventory managment system\\inventorysystem\\src\\inventorysystem.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5C185D96-E7B2-4EA3-8DC8-82951692E9CA}|src\\InventorySystem.API\\InventorySystem.API.csproj|solutionrelative:src\\inventorysystem.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1E8E7306-4883-43EB-8408-2F350C3220AA}|src\\InventorySystem.Infrastructure\\InventorySystem.Infrastructure.csproj|e:\\programming\\projects\\new\\full stack\\inventory managment system\\inventorysystem\\src\\inventorysystem.infrastructure\\persistence\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -30,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -68,13 +68,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "DbSeeder.cs",
               "DocumentMoniker": "E:\\Programming\\Projects\\New\\Full Stack\\Inventory Managment System\\InventorySystem\\src\\InventorySystem.Infrastructure\\Persistence\\DbSeeder.cs",
               "RelativeDocumentMoniker": "src\\InventorySystem.Infrastructure\\Persistence\\DbSeeder.cs",
               "ToolTip": "E:\\Programming\\Projects\\New\\Full Stack\\Inventory Managment System\\InventorySystem\\src\\InventorySystem.Infrastructure\\Persistence\\DbSeeder.cs",
               "RelativeToolTip": "src\\InventorySystem.Infrastructure\\Persistence\\DbSeeder.cs",
-              "ViewState": "AgIAABMAAAAAAAAAAAAQwB8AAAAsAAAAAAAAAA==",
+              "ViewState": "AgIAAB0AAACAYWZmZmYTwB0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-09-13T20:02:47.019Z",
               "EditorCaption": ""
@@ -94,13 +94,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "E:\\Programming\\Projects\\New\\Full Stack\\Inventory Managment System\\InventorySystem\\src\\InventorySystem.API\\Program.cs",
               "RelativeDocumentMoniker": "src\\InventorySystem.API\\Program.cs",
               "ToolTip": "E:\\Programming\\Projects\\New\\Full Stack\\Inventory Managment System\\InventorySystem\\src\\InventorySystem.API\\Program.cs",
               "RelativeToolTip": "src\\InventorySystem.API\\Program.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAAB8AAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAE8AAAAAAAAAAAAAwB8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-09-13T18:44:57.903Z",
               "EditorCaption": ""
