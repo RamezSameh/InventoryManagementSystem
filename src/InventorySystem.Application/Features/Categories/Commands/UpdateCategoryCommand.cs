@@ -1,0 +1,5 @@
+using FluentValidation; using MediatR; using Microsoft.EntityFrameworkCore; using InventorySystem.Application.Interfaces;
+namespace InventorySystem.Application.Features.Categories.Commands;
+public record UpdateCategoryCommand(int Id,string Name,string? Description) : IRequest;
+public class UpdateCategoryCommandValidator : AbstractValidator<UpdateCategoryCommand> { public UpdateCategoryCommandValidator(){ RuleFor(x=>x.Id).GreaterThan(0); RuleFor(x=>x.Name).NotEmpty().MaximumLength(200); RuleFor(x=>x.Description).MaximumLength(500); } }
+public class UpdateCategoryCommandHandler(IAppDbContext db) : IRequestHandler<UpdateCategoryCommand> { public async Task Handle(UpdateCategoryCommand r,CancellationToken ct){ var c=await db.Categories.FindAsync([r.Id],ct)??throw new KeyNotFoundException("Category not found."); if(c.IsDeleted) throw new KeyNotFoundException("Category not found."); if(await db.Categories.AnyAsync(x=>x.Name==r.Name&&x.Id!=r.Id&&!x.IsDeleted,ct)) throw new InvalidOperationException("Category name already exists."); c.Name=r.Name; c.Description=r.Description; c.UpdatedAt=DateTime.UtcNow; await db.SaveChangesAsync(ct); } }

@@ -80,7 +80,17 @@ cd InventoryManagementSystem
 src/InventorySystem.API/appsettings.json
 ```
 
-حدّث `ConnectionStrings:DefaultConnection` إذا كنت تستخدم SQL Server مختلفًا، وغيّر `Jwt:Key` إلى قيمة طويلة وعشوائية قبل أي استخدام خارج بيئة التطوير.
+حدّث `ConnectionStrings:DefaultConnection` إذا كنت تستخدم SQL Server مختلفًا.
+
+> **مفتاح JWT:** التطبيق يرفض التشغيل خارج بيئة التطوير إذا لم يتم ضبط `Jwt:Key` بقيمة حقيقية. اضبطه عبر متغير البيئة `Jwt__Key` (أو User Secrets) بقيمة عشوائية لا تقل عن 32 حرفًا. في بيئة التطوير يعمل النظام بمفتاح مؤقت مع تحذير في السجل.
+
+مثال (PowerShell):
+
+```powershell
+$env:Jwt__Key = "your-random-256-bit-secret-here"
+```
+
+يمكن أيضًا تقييد CORS عبر `Cors:AllowedOrigins` (قيم مفصولة بفواصل، الافتراضي `http://localhost:4200`).
 
 ### 3. Run the backend
 
@@ -117,7 +127,7 @@ npm start
 http://localhost:4200
 ```
 
-عنوان الـ API مضبوط حاليًا داخل `frontend/src/app/core/api.service.ts` على `https://localhost:44330/api` ليتوافق مع IIS Express. عند تشغيل الـ API باستخدام `dotnet run` على `http://localhost:5000`، حدّث قيمة `base` في هذا الملف إلى `http://localhost:5000/api`.
+عنوان الـ API يُضبط الآن من ملف `frontend/src/environments/environment.ts` (قيمة `apiUrl`) بدل الكتابة اليدوية داخل `api.service.ts`. القيمة الافتراضية `https://localhost:44330/api` لتوافق IIS Express؛ عند تشغيل الـ API باستخدام `dotnet run` على `http://localhost:5000`، غيّرها إلى `http://localhost:5000/api`.
 
 ## Development Seed Data
 
@@ -136,16 +146,34 @@ Password: Admin@123
 
 | Method | Endpoint | Description |
 | --- | --- | --- |
-| `POST` | `/api/auth/login` | تسجيل الدخول وإرجاع JWT |
-| `POST` | `/api/auth/register` | إنشاء مستخدم جديد |
+| `POST` | `/api/auth/login` | تسجيل الدخول وإرجاع JWT + refresh token |
+| `POST` | `/api/auth/register` | إنشاء مستخدم جديد (الدور الافتراضي Cashier) |
+| `POST` | `/api/auth/refresh` | تجديد الـ JWT باستخدام refresh token |
+| `POST` | `/api/auth/revoke` | إلغاء refresh token |
 | `GET` | `/api/products` | استعراض المنتجات |
 | `POST` | `/api/products` | إضافة منتج (Admin / Manager) |
+| `GET` | `/api/products/{id}` | تفاصيل منتج |
+| `PUT` | `/api/products/{id}` | تعديل منتج (Admin / Manager) |
+| `DELETE` | `/api/products/{id}` | حذف ناعم لمنتج (Admin / Manager) |
 | `GET` | `/api/categories` | استعراض التصنيفات |
 | `POST` | `/api/categories` | إضافة تصنيف (Admin / Manager) |
+| `GET` | `/api/categories/{id}` | تفاصيل تصنيف |
+| `PUT` | `/api/categories/{id}` | تعديل تصنيف (Admin / Manager) |
+| `DELETE` | `/api/categories/{id}` | حذف ناعم لتصنيف (Admin / Manager) |
 | `GET` | `/api/warehouses` | استعراض المخازن |
 | `POST` | `/api/warehouses` | إضافة مخزن (Admin / Manager) |
-| `POST` | `/api/stock/movement` | تسجيل حركة مخزون |
+| `GET` | `/api/warehouses/{id}` | تفاصيل مخزن |
+| `PUT` | `/api/warehouses/{id}` | تعديل مخزن (Admin / Manager) |
+| `DELETE` | `/api/warehouses/{id}` | حذف ناعم لمخزن (Admin / Manager) |
+| `GET` | `/api/suppliers` | استعراض الموردين |
+| `POST` | `/api/suppliers` | إضافة مورد (Admin / Manager) |
+| `GET` | `/api/suppliers/{id}` | تفاصيل مورد |
+| `PUT` | `/api/suppliers/{id}` | تعديل مورد (Admin / Manager) |
+| `DELETE` | `/api/suppliers/{id}` | حذف مورد (Admin / Manager) |
+| `POST` | `/api/stock/movement` | تسجيل حركة مخزون (تسجيل دخول مطلوب) |
+| `GET` | `/api/stock/movements` | سجل حركات المخزون مع فلاتر (منتج، مخزن، نوع، تاريخ) |
 | `GET` | `/api/stock/low-stock` | استعراض الأصناف منخفضة المخزون |
+| `GET` | `/api/dashboard/summary` | ملخص لوحة المعلومات (تسجيل دخول مطلوب) |
 
 ## Testing
 
@@ -157,14 +185,15 @@ dotnet test
 
 ## Security Notes
 
-- لا تستخدم مفتاح JWT الموجود في إعدادات التطوير في الإنتاج.
+- التطبيق يرفض التشغيل خارج بيئة التطوير إذا لم يتم ضبط `Jwt:Key` بقيمة حقيقية (متغير البيئة `Jwt__Key`).
 - لا تضع كلمات المرور أو مفاتيح JWT الحقيقية داخل Git.
 - استخدم User Secrets أو متغيرات البيئة لإعدادات الإنتاج.
-- راجع سياسة CORS قبل النشر؛ إعداد التطوير الحالي يسمح بكل المصادر.
+- بيانات التطوير التجريبية (بما فيها حساب `admin@inventory.com`) تُزرع في بيئة التطوير فقط.
+- راجع `Cors:AllowedOrigins` قبل النشر؛ القيمة الافتراضية تسمح بـ `http://localhost:4200` فقط.
 
 ## Status
 
-المشروع في مرحلة التطوير، ويمكن توسيعه بإضافة إدارة الموردين، تقارير المخزون، سجل التدقيق، وإدارة المستخدمين من الواجهة.
+النظام يشمل الآن: إدارة المنتجات والتصنيفات والمخازن والموردين (CRUD كامل)، حركات المخزون مع سجل قابل للفلترة، التحويل بين المخازن بقيد مزدوج، ملخص لوحة المعلومات، refresh tokens، واختبارات وحدة وتكامل.
 
 ## License
 

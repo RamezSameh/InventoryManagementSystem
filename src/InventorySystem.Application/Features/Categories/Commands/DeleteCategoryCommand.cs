@@ -1,0 +1,4 @@
+using MediatR; using Microsoft.EntityFrameworkCore; using InventorySystem.Application.Interfaces;
+namespace InventorySystem.Application.Features.Categories.Commands;
+public record DeleteCategoryCommand(int Id) : IRequest;
+public class DeleteCategoryCommandHandler(IAppDbContext db) : IRequestHandler<DeleteCategoryCommand> { public async Task Handle(DeleteCategoryCommand r,CancellationToken ct){ var c=await db.Categories.FindAsync([r.Id],ct)??throw new KeyNotFoundException("Category not found."); if(c.IsDeleted) throw new KeyNotFoundException("Category not found."); if(await db.Products.AnyAsync(x=>x.CategoryId==c.Id&&!x.IsDeleted,ct)) throw new InvalidOperationException("Cannot delete a category that has products."); c.IsDeleted=true; c.UpdatedAt=DateTime.UtcNow; await db.SaveChangesAsync(ct); } }

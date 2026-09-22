@@ -1,0 +1,4 @@
+using MediatR; using Microsoft.EntityFrameworkCore; using InventorySystem.Application.Interfaces;
+namespace InventorySystem.Application.Features.Warehouses.Commands;
+public record DeleteWarehouseCommand(int Id) : IRequest;
+public class DeleteWarehouseCommandHandler(IAppDbContext db) : IRequestHandler<DeleteWarehouseCommand> { public async Task Handle(DeleteWarehouseCommand r,CancellationToken ct){ var w=await db.Warehouses.FindAsync([r.Id],ct)??throw new KeyNotFoundException("Warehouse not found."); if(w.IsDeleted) throw new KeyNotFoundException("Warehouse not found."); if(await db.StockItems.AnyAsync(x=>x.WarehouseId==w.Id&&!x.IsDeleted&&x.Quantity>0,ct)) throw new InvalidOperationException("Cannot delete a warehouse that holds stock."); w.IsDeleted=true; w.UpdatedAt=DateTime.UtcNow; await db.SaveChangesAsync(ct); } }

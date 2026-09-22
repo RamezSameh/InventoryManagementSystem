@@ -1,0 +1,5 @@
+using FluentValidation; using MediatR; using InventorySystem.Application.Interfaces;
+namespace InventorySystem.Application.Features.Suppliers.Commands;
+public record UpdateSupplierCommand(int Id,string Name,string? Phone,string? Email,string? Address) : IRequest;
+public class UpdateSupplierCommandValidator : AbstractValidator<UpdateSupplierCommand> { public UpdateSupplierCommandValidator(){ RuleFor(x=>x.Id).GreaterThan(0); RuleFor(x=>x.Name).NotEmpty().MaximumLength(200); RuleFor(x=>x.Phone).MaximumLength(50); RuleFor(x=>x.Email).MaximumLength(200).EmailAddress().When(x=>!string.IsNullOrWhiteSpace(x.Email)); RuleFor(x=>x.Address).MaximumLength(500); } }
+public class UpdateSupplierCommandHandler(IAppDbContext db) : IRequestHandler<UpdateSupplierCommand> { public async Task Handle(UpdateSupplierCommand r,CancellationToken ct){ var s=await db.Suppliers.FindAsync([r.Id],ct)??throw new KeyNotFoundException("Supplier not found."); if(s.IsDeleted) throw new KeyNotFoundException("Supplier not found."); s.Name=r.Name; s.Phone=r.Phone; s.Email=r.Email; s.Address=r.Address; s.UpdatedAt=DateTime.UtcNow; await db.SaveChangesAsync(ct); } }

@@ -1,0 +1,5 @@
+using FluentValidation; using MediatR; using Microsoft.EntityFrameworkCore; using InventorySystem.Application.Interfaces;
+namespace InventorySystem.Application.Features.Warehouses.Commands;
+public record UpdateWarehouseCommand(int Id,string Name,string? Location) : IRequest;
+public class UpdateWarehouseCommandValidator : AbstractValidator<UpdateWarehouseCommand> { public UpdateWarehouseCommandValidator(){ RuleFor(x=>x.Id).GreaterThan(0); RuleFor(x=>x.Name).NotEmpty().MaximumLength(200); RuleFor(x=>x.Location).MaximumLength(300); } }
+public class UpdateWarehouseCommandHandler(IAppDbContext db) : IRequestHandler<UpdateWarehouseCommand> { public async Task Handle(UpdateWarehouseCommand r,CancellationToken ct){ var w=await db.Warehouses.FindAsync([r.Id],ct)??throw new KeyNotFoundException("Warehouse not found."); if(w.IsDeleted) throw new KeyNotFoundException("Warehouse not found."); if(await db.Warehouses.AnyAsync(x=>x.Name==r.Name&&x.Id!=r.Id&&!x.IsDeleted,ct)) throw new InvalidOperationException("Warehouse name already exists."); w.Name=r.Name; w.Location=r.Location; w.UpdatedAt=DateTime.UtcNow; await db.SaveChangesAsync(ct); } }
