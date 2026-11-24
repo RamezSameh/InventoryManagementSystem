@@ -131,7 +131,7 @@ npm start
 http://localhost:4200
 ```
 
-عنوان الـ API يُضبط الآن من ملف `frontend/src/environments/environment.ts` (قيمة `apiUrl`) بدل الكتابة اليدوية داخل `api.service.ts`. القيمة الافتراضية `http://localhost:5000/api` لتوافق `dotnet run`، فالتشغيل من أول مرة يشتغل من غير تعديل يدوي؛ لو شغّلت الـ API من IIS Express غيّرها إلى `https://localhost:44330/api`.
+عنوان الـ API يُضبط الآن من ملف `frontend/src/environments/environment.ts` (قيمة `apiUrl`) بدل الكتابة اليدوية داخل `api.service.ts`. القيمة الافتراضية `https://localhost:44330/api` لتوافق IIS Express، فالتشغيل من أول مرة يشتغل من غير تعديل يدوي؛ لو شغّلت الـ API بـ `dotnet run` غيّرها إلى `http://localhost:5000/api`.
 
 ## Development Seed Data
 
