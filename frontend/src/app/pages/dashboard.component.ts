@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiService, Product, DashboardSummary } from '../core/api.service';
+import { ApiService, Product, DashboardSummary, InventoryReport } from '../core/api.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -50,8 +50,36 @@ import { RouterLink } from '@angular/router';
         <span class="status-dot"></span>
       </div>
       <div class="empty" *ngIf="!low.length">لا توجد تنبيهات حالياً</div>
-      <a class="outline full" routerLink="/stock">إدارة المخزون</a>
+      <a class="outline full" routerLink="/low-stock">عرض كل التنبيهات</a>
     </div>
+  </div>
+  <div class="panel" style="margin-top:20px">
+    <div class="panel-head"><div><h2>تقرير قيمة المخزون</h2><p>قيمة المخزون بأسعار الشراء — حسب التصنيف والمستودع</p></div><strong *ngIf="report">الإجمالي: {{report.totalValue|number:'1.0-0'}} ر.س</strong></div>
+    <div class="section-grid">
+      <div>
+        <h3 style="font-size:14px;margin:0 0 10px">حسب التصنيف</h3>
+        <table>
+          <thead><tr><th>التصنيف</th><th>المنتجات</th><th>الكمية</th><th>القيمة</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let r of report?.byCategory">
+              <td><b>{{r.categoryName}}</b></td><td>{{r.productCount}}</td><td>{{r.totalQuantity}}</td><td>{{r.totalValue|number:'1.0-0'}} ر.س</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 style="font-size:14px;margin:0 0 10px">حسب المستودع</h3>
+        <table>
+          <thead><tr><th>المستودع</th><th>المنتجات</th><th>الكمية</th><th>القيمة</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let r of report?.byWarehouse">
+              <td><b>{{r.warehouseName}}</b></td><td>{{r.productCount}}</td><td>{{r.totalQuantity}}</td><td>{{r.totalValue|number:'1.0-0'}} ر.س</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="empty" *ngIf="!report">تعذر تحميل التقرير.</div>
   </div>`
 })
 export class DashboardComponent {
@@ -60,6 +88,7 @@ export class DashboardComponent {
   low: any[] = [];
   value = 0;
   summary: DashboardSummary | null = null;
+  report: InventoryReport | null = null;
 
   ngOnInit() {
     this.api.products().subscribe({
@@ -70,6 +99,10 @@ export class DashboardComponent {
     this.api.dashboardSummary().subscribe({
       next: x => this.summary = x,
       error: () => this.summary = null // fallback: القيم المحسوبة محلياً أعلاه
+    });
+    this.api.inventoryReport().subscribe({
+      next: x => this.report = x,
+      error: () => this.report = null
     });
   }
 }

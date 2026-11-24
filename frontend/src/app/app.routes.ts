@@ -7,6 +7,9 @@ import { CategoriesComponent } from './pages/categories.component';
 import { WarehousesComponent } from './pages/warehouses.component';
 import { MovementsComponent } from './pages/movements.component';
 import { SuppliersComponent } from './pages/suppliers.component';
+import { LowStockComponent } from './pages/low-stock.component';
+import { UsersComponent } from './pages/users.component';
+import { ChangePasswordComponent } from './pages/change-password.component';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
@@ -18,5 +21,8 @@ export const routes: Routes = [
   { path: 'warehouses', component: WarehousesComponent, canActivate: [authGuard] },
   { path: 'suppliers', component: SuppliersComponent, canActivate: [authGuard] },
   { path: 'movements', component: MovementsComponent, canActivate: [authGuard] },
+  { path: 'low-stock', component: LowStockComponent, canActivate: [authGuard] },
+  { path: 'users', component: UsersComponent, canActivate: [authGuard] },
+  { path: 'change-password', component: ChangePasswordComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];

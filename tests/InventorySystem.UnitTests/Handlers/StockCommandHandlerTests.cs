@@ -1,4 +1,5 @@
 using InventorySystem.Application.Features.Stock.Commands;
+using InventorySystem.Application.Interfaces;
 using InventorySystem.Domain.Entities;
 using InventorySystem.UnitTests.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,28 @@ namespace InventorySystem.UnitTests.Handlers;
 
 public class StockCommandHandlerTests
 {
+    private sealed class TestCurrentUser(string? userName) : ICurrentUserService
+    {
+        public string? UserId => "test-user-id";
+        public string? UserName => userName;
+        public bool IsAuthenticated => userName is not null;
+    }
+
+    [Fact]
+    public async Task AddStock_SetsCreatedBy_FromCurrentUser()
+    {
+        await using var db = TestDb.Create();
+        var (_, wh1, _, productId, _) = await TestDb.SeedCatalogAsync(db);
+        var handler = new AddStockCommandHandler(db, new TestCurrentUser("cashier@inventory.com"));
+
+        await handler.Handle(
+            new AddStockCommand(productId, wh1, 5, MovementType.PurchaseIn, null, null),
+            CancellationToken.None);
+
+        var movement = await db.StockMovements.SingleAsync();
+        Assert.Equal("cashier@inventory.com", movement.CreatedBy);
+    }
+
     [Fact]
     public async Task AddStock_PurchaseIn_UpdatesQuantityAndCreatesMovement()
     {

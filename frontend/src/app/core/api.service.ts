@@ -22,7 +22,26 @@ export interface StockMovement {
   id: number; productId: number; productName?: string;
   warehouseId: number; warehouseName?: string;
   quantity: number; type: number; reference?: string | null;
-  date: string; notes?: string | null;
+  date: string; notes?: string | null; createdBy?: string | null;
+}
+export interface UserDto {
+  id: string; email: string; fullName: string;
+  roles: string[]; isLockedOut: boolean; createdAt: string;
+}
+export interface InventoryReport {
+  byCategory: { categoryName: string; productCount: number; totalQuantity: number; totalValue: number }[];
+  byWarehouse: { warehouseName: string; productCount: number; totalQuantity: number; totalValue: number }[];
+  totalValue: number;
+}
+
+/** ينزّل ملف CSV جاي من الـ API (blob) باسم معيّن. */
+export function downloadCsv(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 export interface CreateProductPayload {
   name: string; sku: string; barcode?: string; description?: string;
@@ -45,6 +64,20 @@ export class ApiService {
 
   refresh(refreshToken: string) {
     return this.http.post<LoginResponse>(`${this.base}/auth/refresh`, { refreshToken });
+  }
+
+  changePassword(currentPassword: string, newPassword: string) {
+    return this.http.post(`${this.base}/auth/change-password`, { currentPassword, newPassword });
+  }
+
+  users(): Observable<UserDto[]> {
+    return this.http.get<UserDto[]>(`${this.base}/users`);
+  }
+  changeUserRole(id: string, role: string) {
+    return this.http.put(`${this.base}/users/${id}/role`, { role });
+  }
+  setUserLockout(id: string, lockedOut: boolean) {
+    return this.http.put(`${this.base}/users/${id}/lockout`, { lockedOut });
   }
 
   /** أول صفحة فقط — للقوائم المنسدلة في باقي الصفحات */
@@ -137,5 +170,25 @@ export class ApiService {
 
   dashboardSummary(): Observable<DashboardSummary> {
     return this.http.get<DashboardSummary>(`${this.base}/dashboard/summary`);
+  }
+
+  inventoryReport(): Observable<InventoryReport> {
+    return this.http.get<InventoryReport>(`${this.base}/dashboard/inventory-report`);
+  }
+
+  exportProducts(search?: string) {
+    let params = new HttpParams();
+    if (search) params = params.set('search', search);
+    return this.http.get(`${this.base}/products/export`, { params, responseType: 'blob' });
+  }
+
+  exportMovements(f: MovementFilter) {
+    let params = new HttpParams();
+    if (f.productId) params = params.set('productId', f.productId);
+    if (f.warehouseId) params = params.set('warehouseId', f.warehouseId);
+    if (f.type) params = params.set('type', f.type);
+    if (f.from) params = params.set('from', f.from);
+    if (f.to) params = params.set('to', f.to);
+    return this.http.get(`${this.base}/stock/movements/export`, { params, responseType: 'blob' });
   }
 }

@@ -1,6 +1,7 @@
 // إعدادات البيئة الافتراضية (تُستخدم في builds الإنتاج).
-// عدّل apiUrl ليشير إلى عنوان الـ API في بيئة الإنتاج.
+// apiUrl الافتراضي يشير إلى `dotnet run` (http://localhost:5000)؛
+// عدّلها لعنوان الـ API في بيئة الإنتاج عند النشر.
 export const environment = {
   production: true,
-  apiUrl: 'https://localhost:44330/api'
+  apiUrl: 'http://localhost:5000/api'
 };

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService, StockMovement, Product, Warehouse } from '../core/api.service';
+import { ApiService, StockMovement, Product, Warehouse, downloadCsv } from '../core/api.service';
 
 const TYPE_LABELS: Record<number, string> = {
   1: 'شراء - إدخال', 2: 'بيع - إخراج', 3: 'تحويل - إدخال',
@@ -14,6 +14,7 @@ const TYPE_LABELS: Record<number, string> = {
   template: `
   <div class="page-head">
     <div><h2>سجل حركات المخزون</h2><p>استعرض جميع عمليات الدخول والخروج والتحويلات</p></div>
+    <button class="btn-ghost" (click)="exportCsv()">⬇ تصدير CSV</button>
   </div>
   <div class="panel">
     <div class="filter-row">
@@ -40,7 +41,7 @@ const TYPE_LABELS: Record<number, string> = {
       <label>&nbsp;<button class="btn-ghost" (click)="clearFilters()">مسح الفلاتر</button></label>
     </div>
     <table>
-      <thead><tr><th>التاريخ</th><th>المنتج</th><th>المستودع</th><th>النوع</th><th>الكمية</th><th>المرجع</th></tr></thead>
+      <thead><tr><th>التاريخ</th><th>المنتج</th><th>المستودع</th><th>النوع</th><th>الكمية</th><th>المرجع</th><th>بواسطة</th></tr></thead>
       <tbody>
         <tr *ngFor="let m of items">
           <td class="muted">{{fmtDate(m.date)}}</td>
@@ -49,6 +50,7 @@ const TYPE_LABELS: Record<number, string> = {
           <td><span class="tag">{{typeLabel(m.type)}}</span></td>
           <td><b>{{m.quantity}}</b></td>
           <td class="muted">{{m.reference || '—'}}</td>
+          <td class="muted" dir="ltr">{{m.createdBy || '—'}}</td>
         </tr>
       </tbody>
     </table>
@@ -96,6 +98,19 @@ export class MovementsComponent {
   }
 
   goPage(p: number) { this.page = p; this.load(); }
+
+  exportCsv() {
+    this.api.exportMovements({
+      productId: this.f.productId || undefined,
+      warehouseId: this.f.warehouseId || undefined,
+      type: this.f.type || undefined,
+      from: this.f.from || undefined,
+      to: this.f.to || undefined
+    }).subscribe({
+      next: blob => downloadCsv(blob, 'movements.csv'),
+      error: () => alert('تعذر تصدير السجل.')
+    });
+  }
 
   load() {
     this.loading = true;

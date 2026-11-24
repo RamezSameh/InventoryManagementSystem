@@ -66,6 +66,16 @@ export class AuthService {
     return req$;
   }
 
+  /** اسم المستخدم (الإيميل) المستخرج من الـ JWT — ClaimTypes.Name */
+  userName(): string | null {
+    const t = this.token();
+    if (!t) return null;
+    const p = decodePayload(t);
+    if (!p) return null;
+    const n = p['unique_name'] ?? p['name'] ?? p['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+    return typeof n === 'string' ? n : null;
+  }
+
   /** الدور المستخرج من الـ JWT (Admin / Manager / Cashier) */
   role(): string | null {
     const t = this.token();

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { ApiService, Product, Category, Supplier } from '../core/api.service';
+import { ApiService, Product, Category, Supplier, downloadCsv } from '../core/api.service';
 import { AuthService } from '../core/auth.service';
 
 @Component({
@@ -12,7 +12,10 @@ import { AuthService } from '../core/auth.service';
   template: `
   <div class="page-head">
     <div><h2>المنتجات</h2><p>إدارة جميع المنتجات والأصناف في المخزون</p></div>
-    <button class="primary" *ngIf="canManage()" (click)="openAdd()">＋ إضافة منتج</button>
+    <div style="display:flex;gap:10px">
+      <button class="btn-ghost" (click)="exportCsv()">⬇ تصدير CSV</button>
+      <button class="primary" *ngIf="canManage()" (click)="openAdd()">＋ إضافة منتج</button>
+    </div>
   </div>
   <div class="panel">
     <div class="toolbar">
@@ -137,6 +140,13 @@ export class ProductsComponent implements OnDestroy {
   onSearch(v: string) { this.search$.next(v); }
 
   goPage(p: number) { this.page = p; this.load(); }
+
+  exportCsv() {
+    this.api.exportProducts(this.searchTerm || undefined).subscribe({
+      next: blob => downloadCsv(blob, 'products.csv'),
+      error: () => alert('تعذر تصدير المنتجات.')
+    });
+  }
 
   openAdd() {
     this.editing = null;

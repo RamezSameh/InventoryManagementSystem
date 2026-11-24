@@ -11,8 +11,10 @@
 - إضافة واستعراض المنتجات مع بيانات SKU والأسعار والحد الأدنى للمخزون.
 - إدارة التصنيفات والمخازن.
 - تسجيل حركات المخزون، بما في ذلك الإضافة والصرف والتعديل.
-- عرض الأصناف منخفضة المخزون.
+- عرض الأصناف منخفضة المخزون (صفحة تنبيهات مستقلة + تنبيهات في لوحة المعلومات).
 - لوحة معلومات تعرض إجمالي المنتجات وقيمة المخزون والتنبيهات.
+- تصدير المنتجات وسجل حركات المخزون كملفات CSV، وتقرير قيمة المخزون (بأسعار الشراء) حسب التصنيف والمستودع.
+- إدارة المستخدمين للأدمن (تغيير الدور وتعطيل/تفعيل الحسابات) وتغيير كلمة المرور، وتسجيل مين عمل كل حركة مخزون.
 - Swagger لتجربة وتوثيق واجهات الـ API.
 - حفظ البيانات باستخدام Entity Framework Core وSQL Server.
 - تسجيل الطلبات والأخطاء باستخدام Serilog وmiddleware مركزي للاستثناءات.
@@ -129,7 +131,7 @@ npm start
 http://localhost:4200
 ```
 
-عنوان الـ API يُضبط الآن من ملف `frontend/src/environments/environment.ts` (قيمة `apiUrl`) بدل الكتابة اليدوية داخل `api.service.ts`. القيمة الافتراضية `https://localhost:44330/api` لتوافق IIS Express؛ عند تشغيل الـ API باستخدام `dotnet run` على `http://localhost:5000`، غيّرها إلى `http://localhost:5000/api`.
+عنوان الـ API يُضبط الآن من ملف `frontend/src/environments/environment.ts` (قيمة `apiUrl`) بدل الكتابة اليدوية داخل `api.service.ts`. القيمة الافتراضية `http://localhost:5000/api` لتوافق `dotnet run`، فالتشغيل من أول مرة يشتغل من غير تعديل يدوي؛ لو شغّلت الـ API من IIS Express غيّرها إلى `https://localhost:44330/api`.
 
 ## Development Seed Data
 
@@ -149,10 +151,15 @@ Password: Admin@123
 | Method | Endpoint | Description |
 | --- | --- | --- |
 | `POST` | `/api/auth/login` | تسجيل الدخول وإرجاع JWT + refresh token |
-| `POST` | `/api/auth/register` | إنشاء مستخدم جديد (الدور الافتراضي Cashier) |
+| `POST` | `/api/auth/register` | إنشاء مستخدم جديد (Admin فقط، الدور الافتراضي Cashier) |
+| `POST` | `/api/auth/change-password` | تغيير كلمة مرور المستخدم الحالي |
 | `POST` | `/api/auth/refresh` | تجديد الـ JWT باستخدام refresh token |
 | `POST` | `/api/auth/revoke` | إلغاء refresh token |
+| `GET` | `/api/users` | قائمة المستخدمين (Admin فقط) |
+| `PUT` | `/api/users/{id}/role` | تغيير دور مستخدم (Admin فقط) |
+| `PUT` | `/api/users/{id}/lockout` | تعطيل/تفعيل حساب مستخدم (Admin فقط) |
 | `GET` | `/api/products` | استعراض المنتجات |
+| `GET` | `/api/products/export` | تصدير المنتجات كملف CSV |
 | `POST` | `/api/products` | إضافة منتج (Admin / Manager) |
 | `GET` | `/api/products/{id}` | تفاصيل منتج |
 | `PUT` | `/api/products/{id}` | تعديل منتج (Admin / Manager) |
@@ -172,10 +179,12 @@ Password: Admin@123
 | `GET` | `/api/suppliers/{id}` | تفاصيل مورد |
 | `PUT` | `/api/suppliers/{id}` | تعديل مورد (Admin / Manager) |
 | `DELETE` | `/api/suppliers/{id}` | حذف مورد (Admin / Manager) |
-| `POST` | `/api/stock/movement` | تسجيل حركة مخزون (تسجيل دخول مطلوب) |
+| `POST` | `/api/stock/movement` | تسجيل حركة مخزون (تسجيل دخول مطلوب، وبيتسجّل مين عملها) |
 | `GET` | `/api/stock/movements` | سجل حركات المخزون مع فلاتر (منتج، مخزن، نوع، تاريخ) |
+| `GET` | `/api/stock/movements/export` | تصدير سجل الحركات كملف CSV (نفس الفلاتر) |
 | `GET` | `/api/stock/low-stock` | استعراض الأصناف منخفضة المخزون |
 | `GET` | `/api/dashboard/summary` | ملخص لوحة المعلومات (تسجيل دخول مطلوب) |
+| `GET` | `/api/dashboard/inventory-report` | تقرير قيمة المخزون (بأسعار الشراء) حسب التصنيف والمستودع |
 
 ## Testing
 
@@ -197,7 +206,7 @@ dotnet test
 
 ## Status
 
-النظام يشمل الآن: إدارة المنتجات والتصنيفات والمخازن والموردين (CRUD كامل)، حركات المخزون مع سجل قابل للفلترة، التحويل بين المخازن بقيد مزدوج، ملخص لوحة المعلومات، refresh tokens، واختبارات وحدة وتكامل.
+النظام يشمل الآن: إدارة المنتجات والتصنيفات والمخازن والموردين (CRUD كامل)، حركات المخزون مع سجل قابل للفلترة (وبتسجيل مين عمل كل حركة)، التحويل بين المخازن بقيد مزدوج، ملخص لوحة المعلومات، refresh tokens، تصدير CSV للمنتجات والحركات، تقرير قيمة المخزون، وإدارة المستخدمين، واختبارات وحدة وتكامل.
 
 ## License
 
