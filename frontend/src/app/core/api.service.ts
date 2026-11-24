@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface Product {
@@ -80,11 +80,15 @@ export class ApiService {
     return this.http.put(`${this.base}/users/${id}/lockout`, { lockedOut });
   }
 
-  /** أول صفحة فقط — للقوائم المنسدلة في باقي الصفحات */
+  /** أول صفحة فقط — للقوائم المنسدلة في باقي الصفحات.
+   * الـ API بيرجّع كائن صفحات {items,total,...} من المرحلة 2، فبنفكّ الـ items
+   * هنا عشان كل اللي بيستخدم products() يفضل شايف مصفوفة زي الأول. */
   products(search?: string): Observable<Product[]> {
     let params = new HttpParams();
     if (search) params = params.set('search', search);
-    return this.http.get<Product[]>(`${this.base}/products`, { params });
+    return this.http.get<PagedResult<Product> | Product[]>(`${this.base}/products`, { params }).pipe(
+      map(r => Array.isArray(r) ? r : (r.items ?? []))
+    );
   }
 
   /** صفحة منتجات كاملة مع العدد الإجمالي */
