@@ -50,8 +50,7 @@
               "RelativeToolTip": "src\\InventorySystem.Infrastructure\\Migrations\\20260922183748_RefreshTokens.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-22T18:37:48.806Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-22T18:37:48.806Z"
             },
             {
               "$type": "Document",
@@ -63,8 +62,7 @@
               "RelativeToolTip": "src\\InventorySystem.Infrastructure\\Persistence\\AppDbContext.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-13T20:02:48.399Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-13T20:02:48.399Z"
             },
             {
               "$type": "Document",
@@ -74,7 +72,7 @@
               "RelativeDocumentMoniker": "src\\InventorySystem.Infrastructure\\Persistence\\DbSeeder.cs",
               "ToolTip": "E:\\Programming\\Projects\\New\\Full Stack\\Inventory Managment System\\InventorySystem\\src\\InventorySystem.Infrastructure\\Persistence\\DbSeeder.cs",
               "RelativeToolTip": "src\\InventorySystem.Infrastructure\\Persistence\\DbSeeder.cs",
-              "ViewState": "AgIAAB0AAACAYWZmZmYTwB0AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAB0AAACAYWZmZmYTwCoAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-09-13T20:02:47.019Z",
               "EditorCaption": ""
@@ -89,8 +87,7 @@
               "RelativeToolTip": "src\\InventorySystem.API\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAABSAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-09-13T20:00:07.722Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-13T20:00:07.722Z"
             },
             {
               "$type": "Document",
@@ -102,8 +99,7 @@
               "RelativeToolTip": "src\\InventorySystem.API\\Program.cs",
               "ViewState": "AgIAAE8AAAAAAAAAAAAAwB8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-13T18:44:57.903Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-13T18:44:57.903Z"
             }
           ]
         }
