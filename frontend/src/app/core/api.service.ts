@@ -6,11 +6,14 @@ import { environment } from '../../environments/environment';
 export interface Product {
   id: number; name: string; sku: string; barcode?: string;
   purchasePrice: number; sellingPrice: number; minimumStock: number;
-  categoryName: string; totalStock: number;
+  categoryId: number; categoryName: string; totalStock: number;
+  description?: string | null; supplierId?: number | null; supplierName?: string | null;
 }
 export interface Category { id: number; name: string; description?: string | null }
 export interface Warehouse { id: number; name: string; location?: string | null }
-export interface LoginResponse { token: string }
+export interface Supplier { id: number; name: string; phone?: string | null; email?: string | null; address?: string | null }
+export interface LoginResponse { token: string; refreshToken: string }
+export interface PagedResult<T> { items: T[]; total: number; page: number; pageSize: number }
 export interface DashboardSummary {
   totalProducts: number; totalStockValue: number;
   lowStockCount: number; todayMovements: number;
@@ -24,6 +27,7 @@ export interface StockMovement {
 export interface CreateProductPayload {
   name: string; sku: string; barcode?: string; description?: string;
   purchasePrice: number; sellingPrice: number; minimumStock: number; categoryId: number;
+  supplierId?: number | null;
 }
 export interface MovementFilter {
   productId?: number; warehouseId?: number; type?: number;
@@ -39,14 +43,36 @@ export class ApiService {
     return this.http.post<LoginResponse>(`${this.base}/auth/login`, { email, password });
   }
 
+  refresh(refreshToken: string) {
+    return this.http.post<LoginResponse>(`${this.base}/auth/refresh`, { refreshToken });
+  }
+
+  /** أول صفحة فقط — للقوائم المنسدلة في باقي الصفحات */
   products(search?: string): Observable<Product[]> {
     let params = new HttpParams();
     if (search) params = params.set('search', search);
     return this.http.get<Product[]>(`${this.base}/products`, { params });
   }
 
+  /** صفحة منتجات كاملة مع العدد الإجمالي */
+  productsPaged(search?: string, page = 1, pageSize = 20): Observable<PagedResult<Product>> {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (search) params = params.set('search', search);
+    return this.http.get<PagedResult<Product>>(`${this.base}/products`, { params });
+  }
+
+  productById(id: number): Observable<Product> {
+    return this.http.get<Product>(`${this.base}/products/${id}`);
+  }
+
   createProduct(payload: CreateProductPayload) {
     return this.http.post(`${this.base}/products`, payload);
+  }
+  updateProduct(id: number, payload: CreateProductPayload) {
+    return this.http.put(`${this.base}/products/${id}`, { id, ...payload });
+  }
+  deleteProduct(id: number) {
+    return this.http.delete(`${this.base}/products/${id}`);
   }
 
   categories(): Observable<Category[]> {
@@ -60,6 +86,21 @@ export class ApiService {
   }
   deleteCategory(id: number) {
     return this.http.delete(`${this.base}/categories/${id}`);
+  }
+
+  suppliers(search?: string): Observable<Supplier[]> {
+    let params = new HttpParams();
+    if (search) params = params.set('search', search);
+    return this.http.get<Supplier[]>(`${this.base}/suppliers`, { params });
+  }
+  createSupplier(payload: { name: string; phone?: string; email?: string; address?: string }) {
+    return this.http.post(`${this.base}/suppliers`, payload);
+  }
+  updateSupplier(id: number, payload: { name: string; phone?: string; email?: string; address?: string }) {
+    return this.http.put(`${this.base}/suppliers/${id}`, { id, ...payload });
+  }
+  deleteSupplier(id: number) {
+    return this.http.delete(`${this.base}/suppliers/${id}`);
   }
 
   warehouses(): Observable<Warehouse[]> {

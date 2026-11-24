@@ -17,11 +17,27 @@ public static class DbSeeder
     /// Seed:AdminPassword is configured — otherwise no default admin is created and
     /// a warning is logged, so a known password is never seeded into production.
     /// </summary>
+    /// <summary>
+    /// Applies pending migrations on relational databases (SQL Server), so the
+    /// schema always comes from the migrations. The InMemory provider used by
+    /// integration tests has no migrations, so it keeps EnsureCreated.
+    /// NOTE: databases created by the old EnsureCreated path have no migrations
+    /// history — drop such a database once (it reseeds automatically in
+    /// Development) instead of letting Migrate fail on tables that exist.
+    /// </summary>
+    private static async Task EnsureDatabaseAsync(AppDbContext db)
+    {
+        if (db.Database.IsRelational())
+            await db.Database.MigrateAsync();
+        else
+            await db.Database.EnsureCreatedAsync();
+    }
+
     public static async Task EnsureAdminAsync(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        await db.Database.EnsureCreatedAsync();
+        await EnsureDatabaseAsync(db);
 
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         foreach (var role in new[] { "Admin", "Manager", "Cashier" })
@@ -85,7 +101,7 @@ public static class DbSeeder
     {
         using var scope = serviceProvider.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        await db.Database.EnsureCreatedAsync();
+        await EnsureDatabaseAsync(db);
 
         await SeedReferenceDataAsync(db);
         await SeedProductsAsync(db);

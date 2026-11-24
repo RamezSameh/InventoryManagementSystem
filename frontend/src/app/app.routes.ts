@@ -6,6 +6,7 @@ import { StockComponent } from './pages/stock.component';
 import { CategoriesComponent } from './pages/categories.component';
 import { WarehousesComponent } from './pages/warehouses.component';
 import { MovementsComponent } from './pages/movements.component';
+import { SuppliersComponent } from './pages/suppliers.component';
 import { authGuard } from './core/auth.guard';
 
 export const routes: Routes = [
@@ -15,6 +16,7 @@ export const routes: Routes = [
   { path: 'stock', component: StockComponent, canActivate: [authGuard] },
   { path: 'categories', component: CategoriesComponent, canActivate: [authGuard] },
   { path: 'warehouses', component: WarehousesComponent, canActivate: [authGuard] },
+  { path: 'suppliers', component: SuppliersComponent, canActivate: [authGuard] },
   { path: 'movements', component: MovementsComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];

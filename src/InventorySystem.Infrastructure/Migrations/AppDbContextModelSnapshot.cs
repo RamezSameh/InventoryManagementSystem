@@ -165,6 +165,9 @@ namespace InventorySystem.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("SupplierId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -174,6 +177,8 @@ namespace InventorySystem.Infrastructure.Migrations
 
                     b.HasIndex("SKU")
                         .IsUnique();
+
+                    b.HasIndex("SupplierId");
 
                     b.ToTable("Products");
                 });
@@ -507,7 +512,14 @@ namespace InventorySystem.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("InventorySystem.Domain.Entities.Supplier", "Supplier")
+                        .WithMany("Products")
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Category");
+
+                    b.Navigation("Supplier");
                 });
 
             modelBuilder.Entity("InventorySystem.Domain.Entities.RefreshToken", b =>
@@ -620,6 +632,11 @@ namespace InventorySystem.Infrastructure.Migrations
                     b.Navigation("StockItems");
 
                     b.Navigation("StockMovements");
+                });
+
+            modelBuilder.Entity("InventorySystem.Domain.Entities.Supplier", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("InventorySystem.Domain.Entities.Warehouse", b =>

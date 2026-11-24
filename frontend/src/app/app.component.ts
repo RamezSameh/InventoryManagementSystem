@@ -15,6 +15,7 @@ import { AuthService } from './core/auth.service';
         <a routerLink="/products" routerLinkActive="active">▤ <span>المنتجات</span></a>
         <a routerLink="/categories" routerLinkActive="active">▦ <span>التصنيفات</span></a>
         <a routerLink="/warehouses" routerLinkActive="active">▣ <span>المستودعات</span></a>
+        <a routerLink="/suppliers" routerLinkActive="active">▤ <span>الموردون</span></a>
         <a routerLink="/stock" routerLinkActive="active">⇄ <span>حركة المخزون</span></a>
         <a routerLink="/movements" routerLinkActive="active">≣ <span>سجل الحركات</span></a>
       </nav>

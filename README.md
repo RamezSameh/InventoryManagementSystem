@@ -99,6 +99,8 @@ dotnet restore
 dotnet run --project src/InventorySystem.API
 ```
 
+> **ملاحظة لمرة واحدة:** قاعدة البيانات تُنشأ الآن من الـ migrations (`Migrate`) بدل `EnsureCreated`. لو عندك قاعدة LocalDB قديمة اتعملت قبل التغيير ده، احذفها مرة واحدة قبل التشغيل (مثلاً `dotnet ef database drop --force` من مجلد المشروع، أو من SQL Server Object Explorer) — بيانات التطوير التجريبية هتتزرع تاني تلقائيًا.
+
 بعد التشغيل، افتح Swagger من الرابط الذي يظهر في الطرفية، وغالبًا سيكون:
 
 ```text
