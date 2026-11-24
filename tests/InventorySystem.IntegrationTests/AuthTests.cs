@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -7,14 +8,23 @@ namespace InventorySystem.IntegrationTests;
 [Collection("Api")]
 public class AuthTests(InventoryWebFactory factory)
 {
+    // Registration is admin-only: register through the test admin's token.
+    private async Task<HttpResponseMessage> RegisterAsAdminAsync(HttpClient client, string email)
+    {
+        var adminToken = await factory.GetAdminTokenAsync(client);
+        var req = new HttpRequestMessage(HttpMethod.Post, "/api/auth/register");
+        req.Content = JsonContent.Create(new { email, password = "Test@1234", fullName = "Test User" });
+        req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
+        return await client.SendAsync(req);
+    }
+
     [Fact]
-    public async Task Register_ReturnsToken()
+    public async Task Register_AsAdmin_ReturnsToken()
     {
         var client = factory.CreateClient();
         var email = $"user-{Guid.NewGuid():N}@test.local";
 
-        var resp = await client.PostAsJsonAsync("/api/auth/register",
-            new { email, password = "Test@1234", fullName = "Test User" });
+        var resp = await RegisterAsAdminAsync(client, email);
 
         resp.EnsureSuccessStatusCode();
         var token = (await resp.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("token").GetString();
@@ -22,12 +32,23 @@ public class AuthTests(InventoryWebFactory factory)
     }
 
     [Fact]
+    public async Task Register_WithoutAuth_Returns401()
+    {
+        var client = factory.CreateClient();
+        var email = $"user-{Guid.NewGuid():N}@test.local";
+
+        var resp = await client.PostAsJsonAsync("/api/auth/register",
+            new { email, password = "Test@1234", fullName = "Test User" });
+
+        Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
+    }
+
+    [Fact]
     public async Task Login_WithRegisteredUser_ReturnsToken()
     {
         var client = factory.CreateClient();
         var email = $"user-{Guid.NewGuid():N}@test.local";
-        await client.PostAsJsonAsync("/api/auth/register",
-            new { email, password = "Test@1234", fullName = "Test User" });
+        (await RegisterAsAdminAsync(client, email)).EnsureSuccessStatusCode();
 
         var resp = await client.PostAsJsonAsync("/api/auth/login",
             new { email, password = "Test@1234" });
@@ -42,8 +63,7 @@ public class AuthTests(InventoryWebFactory factory)
     {
         var client = factory.CreateClient();
         var email = $"user-{Guid.NewGuid():N}@test.local";
-        await client.PostAsJsonAsync("/api/auth/register",
-            new { email, password = "Test@1234", fullName = "Test User" });
+        (await RegisterAsAdminAsync(client, email)).EnsureSuccessStatusCode();
 
         var resp = await client.PostAsJsonAsync("/api/auth/login",
             new { email, password = "Wrong@9999" });
@@ -56,8 +76,7 @@ public class AuthTests(InventoryWebFactory factory)
     {
         var client = factory.CreateClient();
         var email = $"user-{Guid.NewGuid():N}@test.local";
-        var reg = await client.PostAsJsonAsync("/api/auth/register",
-            new { email, password = "Test@1234", fullName = "Test User" });
+        var reg = await RegisterAsAdminAsync(client, email);
         reg.EnsureSuccessStatusCode();
         var firstRefresh = (await reg.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("refreshToken").GetString();
         Assert.False(string.IsNullOrWhiteSpace(firstRefresh));

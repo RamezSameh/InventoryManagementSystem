@@ -30,8 +30,8 @@ public class CatalogApiTests(InventoryWebFactory factory)
     public async Task CreateCategory_AsCashier_Returns403()
     {
         var client = factory.CreateClient();
-        // Public registration always yields the Cashier role.
-        var token = await InventoryWebFactory.RegisterAndGetTokenAsync(client);
+        // Registration (admin-only) without an explicit role yields the Cashier role.
+        var token = await factory.RegisterAndGetTokenAsync(client);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var resp = await client.PostAsJsonAsync("/api/categories",
@@ -41,12 +41,12 @@ public class CatalogApiTests(InventoryWebFactory factory)
     }
 
     [Fact]
-    public async Task GetCategories_Anonymous_Returns200()
+    public async Task GetCategories_Anonymous_Returns401()
     {
         var client = factory.CreateClient();
 
         var resp = await client.GetAsync("/api/categories");
 
-        Assert.Equal(HttpStatusCode.OK, resp.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, resp.StatusCode);
     }
 }

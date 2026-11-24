@@ -47,7 +47,8 @@ builder.Services.AddCors(o => o.AddPolicy("AppCors", p => p
 
 var app = builder.Build();
 
-// The default admin account is seeded in every environment so login always works.
+// Roles are seeded in every environment. The default admin account is created in
+// Development, and outside Development only when Seed:AdminPassword is configured.
 // Demo data below is for local development only — never in production.
 await DbSeeder.EnsureAdminAsync(app.Services);
 if (app.Environment.IsDevelopment())
@@ -55,8 +56,17 @@ if (app.Environment.IsDevelopment())
     await DbSeeder.SeedDemoDataAsync(app.Services);
 }
 
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
+{
+    // The "http" launch profile serves plain HTTP with no HTTPS endpoint, so
+    // redirection stays off in Development to keep `dotnet run` working.
+    app.UseHttpsRedirection();
+}
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseSerilogRequestLogging();
 app.UseCors("AppCors");

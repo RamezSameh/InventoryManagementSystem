@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using InventorySystem.Domain.Entities;
@@ -81,12 +82,18 @@ public class InventoryWebFactory : WebApplicationFactory<Program>
         return token ?? throw new InvalidOperationException("Login did not return a token.");
     }
 
-    /// <summary>Registers a user through the public endpoint and returns its JWT.</summary>
-    public static async Task<string> RegisterAndGetTokenAsync(HttpClient client, string? email = null)
+    /// <summary>
+    /// Registers a user through the admin-only endpoint (authenticated as the test
+    /// admin) and returns the new user's JWT. Registration is no longer public.
+    /// </summary>
+    public async Task<string> RegisterAndGetTokenAsync(HttpClient client, string? email = null)
     {
         email ??= $"user-{Guid.NewGuid():N}@test.local";
-        var resp = await client.PostAsJsonAsync("/api/auth/register",
-            new { email, password = "Test@1234", fullName = "Test User" });
+        var adminToken = await GetAdminTokenAsync(client);
+        var req = new HttpRequestMessage(HttpMethod.Post, "/api/auth/register");
+        req.Content = JsonContent.Create(new { email, password = "Test@1234", fullName = "Test User" });
+        req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", adminToken);
+        var resp = await client.SendAsync(req);
         resp.EnsureSuccessStatusCode();
         var token = (await resp.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("token").GetString();
         return token ?? throw new InvalidOperationException("Register did not return a token.");

@@ -3,14 +3,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace InventorySystem.Infrastructure.Persistence;
 
 public static class DbSeeder
 {
     /// <summary>
-    /// Ensures roles and the default admin account exist. Runs in EVERY environment
-    /// (Development and Production) so the default admin can always log in.
+    /// Ensures the Admin/Manager/Cashier roles exist and, when allowed, the default
+    /// admin account (admin@inventory.com). In Development the well-known dev password
+    /// is used; outside Development the default admin is created ONLY when a real
+    /// Seed:AdminPassword is configured — otherwise no default admin is created and
+    /// a warning is logged, so a known password is never seeded into production.
     /// </summary>
     public static async Task EnsureAdminAsync(IServiceProvider serviceProvider)
     {
@@ -28,9 +33,20 @@ public static class DbSeeder
         }
 
         var config = scope.ServiceProvider.GetService<IConfiguration>();
+        var env = scope.ServiceProvider.GetService<IHostEnvironment>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DbSeeder");
         var adminPassword = config?.GetValue<string>("Seed:AdminPassword");
         if (string.IsNullOrWhiteSpace(adminPassword))
         {
+            // The well-known default password is a development convenience only.
+            // Outside Development, do NOT create an admin with a known password:
+            // skip seeding and let the operator create an admin another way.
+            if (env?.IsDevelopment() != true)
+            {
+                logger.LogWarning("Seed:AdminPassword is not configured — skipping default admin account creation. Set the Seed__AdminPassword environment variable (or user secrets) to create admin@inventory.com.");
+                return;
+            }
+
             adminPassword = "Admin@123";
         }
 
